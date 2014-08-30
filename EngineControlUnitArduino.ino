@@ -48,7 +48,6 @@ void setup() {
 configPage2.dwellRun = 45;
 configPage2.triggerTeeth = 4;
 configPage2.HardRevLim = 75; // *100 = 7500RPM
-configPage2.NbTeeth = 4;
 
   
   pinMode(pinCoil1, OUTPUT);
@@ -157,14 +156,14 @@ void trigger()
    toothOneTime  = curTime;
    
    //IGNITION   
-   int timePerDegree = ldiv( (toothOneTime - toothLastToothTime) , (360/configPage2.NbTeeth)).quot; //The time (uS) it is currently taking to move 1 degree
+   int timePerDegree = ldiv( (toothOneTime - toothLastToothTime) , triggerToothAngle).quot; //The time (uS) it is currently taking to move 1 degree
    Serial.println("fire");
    //ignition1StartAngle = currentStatus.advance - (div((configPage2.dwellRun*100), timePerDegree).quot ); 
    int dwell = (configPage2.dwellRun * 100); //Dwell is stored as ms * 10. ie Dwell of 4.3ms would be 43 in configPage2. This number therefore needs to be multiplied by 100 to get dwell in uS
    if (currentStatus.RPM < ((unsigned int)(configPage2.HardRevLim) * 100) ) //Check for hard cut rev limit (If we're above the hardcut limit, we simply don't set a spark schedule)
         { 
           setIgnitionSchedule1(beginCoil1Charge,
-                    currentStatus.advance * timePerDegree,//(ignition1StartAngle) * timePerDegree, // Timeout
+                    ((triggerToothAngle - advance) * timePerDegree)-dwell,//(ignition1StartAngle) * timePerDegree, // Timeout
                     dwell, // Duration
                     endCoil1Charge
                     );
